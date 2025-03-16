@@ -53,12 +53,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.release.level>11</project.release.level>
-        <project.source.level>11</project.source.level>
-        <project.target.level>11</project.target.level>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
+        <!-- JUnit 5 Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -70,6 +70,22 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.8.2</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- PIT JUnit 5 Plugin -->
+        <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>1.1.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- SpotBugs Annotations -->
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <version>4.7.3</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -83,53 +99,57 @@
     <build>
         <testSourceDirectory>src/test/java</testSourceDirectory>
         <plugins>
+            <!-- Maven Clean Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.2.0</version>
             </plugin>            
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <release>${project.release.level}</release>
-                    <source>${project.source.level}</source>
-                    <target>${project.target.level}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>                
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
-            </plugin>
-
+            <!-- Maven Compiler Plugin -->
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-compiler-plugin</artifactId>
+			  <version>3.10.1</version>
+			  <configuration>
+			    <release>11</release>
+			  </configuration>
+			</plugin>
+			
+			
+            <!-- Maven Jar Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.2</version>
             </plugin>
 
+            <!-- Maven Javadoc Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.4.0</version>
                 <configuration>
                     <linksource>true</linksource>
-                    <source>11</source>
+                    <source>${maven.compiler.source}</source>
                     <docfilessubdirs>true</docfilessubdirs>
                 </configuration>
             </plugin>
             
+            <!-- Maven Surefire Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
             </plugin>
+
+            <!-- Maven Failsafe Plugin -->
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M7</version>
             </plugin>       
 
+            <!-- Maven Resources Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -139,34 +159,87 @@
                 </configuration>
             </plugin>
 
+            <!-- Maven Install Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>3.0.0-M1</version>
             </plugin>
           
+            <!-- Maven Site Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.10.0</version>
             </plugin>
+
+            <!-- JaCoCo Plugin for Coverage Analysis -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- PIT Plugin for Mutation Testing -->
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.15.0</version>
+                <dependencies>
+                    <!-- Add this dependency for JUnit 5 support in PIT -->
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.1.2</version>
+                    </dependency>
+                </dependencies>
+            </plugin>     
+        
+            <!-- SpotBugs Plugin -->
+        <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>4.9.2.0</version>
+            <configuration>
+                <effort>Max</effort> <!-- Analysis effort level -->
+                <threshold>Low</threshold> <!-- Report bugs with low or higher severity -->
+                <xmlOutput>true</xmlOutput> <!-- Generate XML report -->
+                <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
+                <spotbugsHtmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsHtmlOutputDirectory>
+            </configuration>
+        </plugin>
         </plugins>
     </build>
 
     <reporting>
         <plugins>
+            <!-- Maven Surefire Report Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>3.0.0-M5</version>
             </plugin>
                 
+            <!-- Maven JXR Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>3.1.1</version>
             </plugin>
-
         </plugins>
     </reporting>
 
@@ -175,6 +248,7 @@
             <id>release</id>
             <build>
                 <plugins>
+                    <!-- Maven GPG Plugin -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -190,6 +264,7 @@
                         </executions>
                     </plugin> 
 
+                    <!-- Nexus Staging Plugin -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -202,6 +277,7 @@
                         </configuration>
                     </plugin>
 
+                    <!-- Maven Javadoc Plugin -->
                     <plugin>
                         <inherited>true</inherited>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -221,6 +297,7 @@
                         </executions>
                     </plugin>
 
+                    <!-- Maven Source Plugin -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
